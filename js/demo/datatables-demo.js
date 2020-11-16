@@ -1,20 +1,10 @@
 // Call the dataTables jQuery plugin
+var editor;
 $(document).ready(function () {
-//   editor = new $.fn.dataTable.Editor( {
-//     ajax: "http://localhost:5000/api/users",
-//     table: "#dataTable",
-//     fields: [ {
-//             label: "Full name",
-//             name: "name"
-//         }, {
-//             label: "Email",
-//             name: "email"
-//         }, {
-//             label: "age",
-//             name: "age"
-//         }
-//     ]
-// } );
+
+  var editedNameInput = document.getElementById('nameInput');
+  var editedEmailInput = document.getElementById('emailInput');
+  var editedAgeInput = document.getElementById('ageInput');
 
   $.ajax({
     url: 'http://localhost:5000/api/users',
@@ -28,27 +18,73 @@ $(document).ready(function () {
           { 'data': 'name' },
           { 'data': 'email' },
           { 'data': 'age' },
-          { defaultContent: '<input type="button" class="delete" value="Delete"/> ' }
+          { defaultContent: '<input type="button" class="delete" value="Delete"/> <input type="button" class="edit" value="Edit"/> ' }
         ],
         "columnDefs": [
           { "visible": false, "targets": 0 }
-        ]
+        ],
+    
       });
-      // <input type="button" class="edit" value="Edit"/> 
-      // $('#dataTable').on('click', 'tbody tr', function () {
-      //   console.log(this);
-      //   table.row(this).edit();
+      $('#dataTable tbody').on('click', '.edit', function (e) {
+        e.preventDefault();
+        var row = $(this).closest('tr');
+        var data = table.row(row).data();
+        editedNameInput.value = data.name;
+        editedEmailInput.value = data.email;
+        editedAgeInput.value = data.age;
+        $('#editForm').toggle();
+        $('#editUser').on('click', function (e) {
+          $('#editForm').validate({
+            messages: {
+              nameInput: {
+                required: "Name is required!",
+                minlength: "Your name should be atleast 3 letter!"
+              },
+              emailInput: "Email is required and should be valid email",
+              ageInput: "Age is required field!"
+            },
+            submitHandler: function () {
+              data.name = editedNameInput.value;
+              data.email = editedEmailInput.value;
+              data.age = editedAgeInput.value;
+              var url = 'http://localhost:5000/api/users/' + data._id;
+              $.ajax({
+                url: url,
+                method: 'PUT',
+                dataType: 'json',
+                data: JSON.stringify({
+                  name: editedNameInput.value,
+                  email: editedEmailInput.value,
+                  age: editedAgeInput.value,
+                }),
+                contentType: 'application/json',
+                success: function () {
+                  toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-top-center",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                  }
+                  toastr["success"]("User updated!", "Success");
+                  setTimeout(function () { location.href = location.href }, 1500);
+                }
+              })
+            }
+          });
+        })
+      });
 
-      // });
-      $('#dataTable').on( 'click', 'tbody tr', function () {
-        table.row( this ).edit();
-    } );
-
-      // $('#dataTable tbody').on('click', '.edit', function (e) {
-      //   e.preventDefault();
-      //   var row = $(this).closest('tr');
-      //   table.row(this).edit();
-      // });
       $('#dataTable tbody').on('click', '.delete', function (e) {
         e.preventDefault();
         var row = $(this).closest('tr');
