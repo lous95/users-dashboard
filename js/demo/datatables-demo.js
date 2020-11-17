@@ -32,6 +32,7 @@ $(document).ready(function () {
         editedNameInput.value = data.name;
         editedEmailInput.value = data.email;
         editedAgeInput.value = data.age;
+        $(document).scrollTop($(document).height());
         $('#editForm').toggle();
         $('#editUser').on('click', function (e) {
           $('#editForm').validate({

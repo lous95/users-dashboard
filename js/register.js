@@ -4,10 +4,22 @@ $(document).ready(function(){
     var emailInput = $('#emailInput');
     var ageInput = $('#ageInput');
     var countryInput = $('#countryInput');
-    var genderInput = $("input[name='genderInput']:checked");
+    var genderInput = document.getElementsByName('genderInput');
+    console.log(genderInput[0].value);
+    var genderValue;
+
+    function displayRadioValue(){
+        for(i = 0; i < genderInput.length; i++){
+          if(genderInput[i].checked){
+            genderValue = genderInput[i].value
+          }
+        }
+      
+    }
+
   
     $('#addNewUser').on('click', function(e){ 
-     
+      displayRadioValue();
       $('#addUserForm').validate({
         messages : {
           nameInput : {
@@ -27,7 +39,7 @@ $(document).ready(function(){
               email : emailInput.val(),
               age : ageInput.val(),
               country : countryInput.val(),
-              gender : genderInput.val()
+              gender : genderValue
             }),
             contentType: 'application/json',
             success : function(){
